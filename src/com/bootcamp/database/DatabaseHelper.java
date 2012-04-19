@@ -23,6 +23,10 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 							" longitude text not null," +
 							" quake_date text not null," +
 							" link text not null);");
+		
+		database.execSQL("create table earthquakes_deleted ("+
+                " _id integer primary key autoincrement, " +
+				" link text not null);");				
 	}
 	
 	// increases the database version

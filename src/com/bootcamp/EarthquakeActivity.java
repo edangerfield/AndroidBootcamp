@@ -1,191 +1,59 @@
 package com.bootcamp;
 
-import java.text.DateFormat;
-import java.util.Date;
-import java.util.Iterator;
-import java.util.List;
+import java.util.ArrayList;
 
-import android.app.Activity;
-import android.database.Cursor;
+import android.app.ListActivity;
 import android.os.Bundle;
-import android.view.Window;
-import android.widget.TableLayout;
-import android.widget.TableRow;
-import android.widget.TextView;
 
-import com.bootcamp.data.XMLData;
-import com.bootcamp.database.DbAdapter;
-import com.bootcamp.parser.XMLPullParser;
 
-public class EarthquakeActivity extends Activity {
+public class EarthquakeActivity extends ListActivity {
     
-	
-	//private static final String rssURL = "http://earthquake.usgs.gov/earthquakes/shakemap/rss.xml"; 
-	private static final String rssURL = "http://10.61.21.41:7000/rss.xml";
-	
+	public ArrayList<String> getLinksDeleted() {
+		return linksDeleted;
+	}
+
+	public void setLinksDeleted(ArrayList<String> linksDeleted) {
+		this.linksDeleted = linksDeleted;
+	}
+
+	private ArrayList<String> linksDeleted = new ArrayList<String>();
+		
 	/** Called when the activity is first created. */
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         
-        final boolean customTitleSupported = requestWindowFeature(Window.FEATURE_CUSTOM_TITLE);
-        setContentView(R.layout.main);
+        //final boolean customTitleSupported = requestWindowFeature(Window.FEATURE_CUSTOM_TITLE);
+        //setContentView(R.layout.main);
         
         //set custom title
-        if (customTitleSupported) {
-            getWindow().setFeatureInt(Window.FEATURE_CUSTOM_TITLE, R.layout.title);
-        }
+        //if (customTitleSupported) {
+        //    getWindow().setFeatureInt(Window.FEATURE_CUSTOM_TITLE, R.layout.title);
+        //}
                 
-        //fetch data from url, insert into db
-        PopulateDatabase();
-                
-        //populate table layout from db
-        PopulateTableLayout();
-                
+           
+        //Create and start new thread
+        PopulateObjects p = new PopulateObjects();
+        p.init(this);
+        p.execute(new String[] { "temp" });
     }
-
-    
-    
-    //********************************
-    //Title: PopualeDatabase
-    //Purpose: To populate the database table with data from URL
-    //********************************    
-    private void PopulateDatabase() {
-
-       XMLData currentItem = null;
-    	
-       //Obtain data from RSS URL.  Parse into list of objects. 
- 	   XMLPullParser parser = new XMLPullParser(rssURL);
- 	   List<XMLData> dataList = parser.parse();
- 	   
- 	   if (dataList.size() > 0) {
- 	   
- 		   //open db
- 		   DbAdapter db = new DbAdapter(this);
- 		   db.open();
- 		   
-	 	   //loop thru list and insert new earthquakes
-	 	   Iterator<XMLData> itr = dataList.iterator();
-	 	   while (itr.hasNext()) {
-	 		   
-	 		   currentItem = itr.next();
-	 		   db.insert(currentItem.getTitle(), currentItem.getLatitude(), currentItem.getLongitude(), currentItem.getSeconds(), currentItem.getLink() );
-	 	   }
-	 	   
-	 	   db.close();
- 	   }
-    }
-    
-    
-    
-    //********************************
-    //Title: PopualeTableLayout
-    //Purpose: To populate the table layout w/ contents from the database
-    //********************************
-	private void PopulateTableLayout() {
-			
-		//open db
-		DbAdapter db = new DbAdapter(this);
-		db.open();
-		
-		//fetch data
-		Cursor cursor = db.selectAllRows();
-		
-		DateFormat dateF = DateFormat.getDateTimeInstance();
-		TableLayout t1 = (TableLayout)findViewById(R.id.myTableLayout);
-		
-		//iterate over cursor, add item to row, add row to table layout		
-		cursor.moveToFirst();
-		while (cursor.isAfterLast() == false) {
-			
-		   int value_id     	= cursor.getInt(0);	
-		   String value_Title	= cursor.getString(1);
-		   String value_lat		= cursor.getString(2);
-		   String value_long	= cursor.getString(3);
-		   long value_sec		= cursor.getLong(4);
-			
-		   //create row, apply layout
-		   TableRow tr = new TableRow(this);		   		   
-		   tr.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.MATCH_PARENT, TableRow.LayoutParams.WRAP_CONTENT));
-		   
-		   //create and set textViews
-		   TextView tv = new TextView(this);			   
-		   tv.setText( value_Title );
-		   tv.setPadding(3, 3, 25, 3);
-		   		   
-		   TextView tv2 = new TextView(this);	   
-		   tv2.setText( value_lat );
-		   tv2.setPadding(3, 3, 25, 3);
-		   
-		   TextView tv3 = new TextView(this);	   
-		   tv3.setText( value_long );
-		   tv3.setPadding(3, 3, 25, 3);
-		   
-		   Date d = new Date (value_sec * 1000);		   
-		   TextView tv4 = new TextView(this);	   
-		   tv4.setText(dateF.format(d));
-		   tv4.setPadding(3, 3, 15, 3);
-		   
-		   //add textView to row
-		   tr.addView(tv);
-		   tr.addView(tv2);
-		   tr.addView(tv3);
-		   tr.addView(tv4);
-		   
-		   //add row to table layout
-		   t1.addView(tr, new TableRow.LayoutParams(TableRow.LayoutParams.MATCH_PARENT, TableRow.LayoutParams.WRAP_CONTENT));
-			
-		   cursor.moveToNext();
-		}
-		
-		db.close();
-		
-		
-//	   XMLData currentItem = null;
-//	   DateFormat dateF = DateFormat.getDateTimeInstance();
-//	   
-//	   //Obtain data 
-//	   XMLPullParser parser = new XMLPullParser(rssURL);
-//	   List<XMLData> dataList = parser.parse();
-//	   	   
-//	   TableLayout t1 = (TableLayout)findViewById(R.id.myTableLayout);
-//	   	   	   
-//	   //iterate over list, add item to row, add row to table layout
-//	   Iterator<XMLData> itr = dataList.iterator();
-//	   while (itr.hasNext()) {
-//		   
-//		   currentItem = itr.next();
-//		   
-//		   //create row, apply layout
-//		   TableRow tr = new TableRow(this);		   		   
-//		   tr.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.MATCH_PARENT, TableRow.LayoutParams.WRAP_CONTENT));
-//		   
-//		   //create and set textViews
-//		   TextView tv = new TextView(this);			   
-//		   tv.setText( currentItem.getTitle() );
-//		   tv.setPadding(3, 3, 25, 3);
-//		   		   
-//		   TextView tv2 = new TextView(this);	   
-//		   tv2.setText( String.valueOf(currentItem.getLatitude()) );
-//		   tv2.setPadding(3, 3, 25, 3);
-//		   
-//		   TextView tv3 = new TextView(this);	   
-//		   tv3.setText( String.valueOf(currentItem.getLongitude()) );
-//		   tv3.setPadding(3, 3, 25, 3);
-//		   
-//		   Date d = new Date (currentItem.getSeconds()*1000);		   
-//		   TextView tv4 = new TextView(this);	   
-//		   tv4.setText(dateF.format(d));
-//		   tv4.setPadding(3, 3, 15, 3);
-//		   
-//		   //add textView to row
-//		   tr.addView(tv);
-//		   tr.addView(tv2);
-//		   tr.addView(tv3);
-//		   tr.addView(tv4);
-//		   
-//		   //add row to table layout
-//		   t1.addView(tr, new TableRow.LayoutParams(TableRow.LayoutParams.MATCH_PARENT, TableRow.LayoutParams.WRAP_CONTENT));		   
-//	   }	   	   
-	}	
+        
 }
+
+
+// Option 1
+//    Since cursor is bound to the DB, upon selection of remove item, obtain the link from the cursor,
+//      store it and delete it from the DB table.  Update initial fetch and refreshes, to pull in all records except those in this list.
+//
+//			- pass simpleCursorAdapter in constructor of ActionmodeHelper
+//			- using simpleCursorAdapter in ActionmodeHelper.onActionItemClick, invoke a delete op on DB. Then
+//            create new cursor and set in simpleCursorAdapter (sCA.ChangeCursor(newCursor))
+//			- will need new DbAdapter to obtain cursor
+//					- delete functionality working, need to work on the requery and refreshing the listview
+
+
+//    action bar icons: http://developer.android.com/design/style/iconography.html
+
+// Option 2
+//    Do not use a cursor adapter.  Fetch from DB into array list, then populate ListView from arrayList.
+//    Upon selection of remove item, delete item from array list and refresh list view

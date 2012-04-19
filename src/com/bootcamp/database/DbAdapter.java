@@ -1,10 +1,13 @@
 package com.bootcamp.database;
 
-import android.content.ContentValues;
+import java.util.ArrayList;
+
 import android.content.Context;
 import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
+
+import com.bootcamp.EarthquakeActivity;
 
 public class DbAdapter  {
 								// Database fields
@@ -17,19 +20,20 @@ public class DbAdapter  {
 	
 	
 	private static final String DATABASE_TABLE = "earthquakes";
-	private Context context;
+	private static final String DATABASE_TABLE_EQ_DELETED = "earthquakes_deleted";
+	private EarthquakeActivity earthquakeActivity;
 	private SQLiteDatabase database;
 	private DatabaseHelper dbHelper;
 
 	public DbAdapter(Context context) {
-		this.context = context;
+		this.earthquakeActivity = (EarthquakeActivity)context;
 	}
 
 	
 	//open db connection
 	public DbAdapter open() throws SQLException {
 
-		dbHelper = new DatabaseHelper(context);
+		dbHelper = new DatabaseHelper(earthquakeActivity);
 
 		database = dbHelper.getWritableDatabase();
 		return this;
@@ -52,6 +56,9 @@ public class DbAdapter  {
 				            " select '" + title + "','" + latitude + "','" + longitude + "','" + seconds + "','" + link + "'" + 
 				            " where not exists (" +
 				                    " select 1 from " + DATABASE_TABLE +
+				                    " where " + CON_LINK + "='" + link + "')" +
+				            " and not exists (" +
+				                    " select 1 from " + DATABASE_TABLE_EQ_DELETED +
 				                    " where " + CON_LINK + "='" + link + "')";
 					   
 		//exec the sql statement
@@ -66,6 +73,21 @@ public class DbAdapter  {
 							  null, null, null, null, CON_QUAKE_DATE + " DESC");
 	}
 	
+	
+	public boolean delete(String link) {
+		return database.delete(DATABASE_TABLE, CON_LINK + "='" + link + "'", null) > 0;
+	}
+	
+	
+	//insert deleted earthquakes into separate table
+	public void insertDeletedQuakes(String link) {
+
+		//build insert stmt
+		String sqlstmt = "insert into " + DATABASE_TABLE_EQ_DELETED + " (" + CON_LINK + ") values ('" + link + "')";
+					   
+		//exec the sql statement
+		database.execSQL(sqlstmt);
+	}
 	
 	// Put String values into a Content object
 //	private ContentValues createContentValues(String category, String summary, String description) {
