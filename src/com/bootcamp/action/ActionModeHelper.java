@@ -1,6 +1,9 @@
 package com.bootcamp.action;
 
 
+import java.util.Iterator;
+import java.util.List;
+
 import android.database.Cursor;
 import android.view.ActionMode;
 import android.view.Menu;
@@ -11,7 +14,10 @@ import android.widget.AdapterView;
 import android.widget.SimpleCursorAdapter;
 
 import com.bootcamp.EarthquakeActivity;
+import com.bootcamp.PopulateObjects;
+import com.bootcamp.data.XMLData;
 import com.bootcamp.database.DbAdapter;
+import com.bootcamp.parser.XMLPullParser;
 
 public class ActionModeHelper 
   implements AdapterView.OnItemLongClickListener, ActionMode.Callback{
@@ -63,6 +69,8 @@ public class ActionModeHelper
 	//***********************************************
     public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
 	    
+    	DbAdapter db = new DbAdapter(earthquakeActivity);
+    	
 	    if (item.getItemId() == com.bootcamp.R.id.remove) {
 	    	
 	    	myActionMode.finish();
@@ -71,8 +79,7 @@ public class ActionModeHelper
 	    	Cursor cursor = scAdapter.getCursor();
 	    	String link = cursor.getString(cursor.getColumnIndex("link"));	    	
 	    	
-	    	//delete row w/ link from DB
-	    	DbAdapter db = new DbAdapter(earthquakeActivity);
+	    	//delete row w/ link from DB	    	
     		db.open();
     		if (db.delete(link) ) {
     			db.insertDeletedQuakes(link);
@@ -80,17 +87,18 @@ public class ActionModeHelper
     		db.close();    		
 	    	
     		//add link to list of those deleted
-    		earthquakeActivity.getLinksDeleted().add(link);
-    		
-	    	//query DB to get new cursor
-    		db.open();
-	    	Cursor cursor_requeried = db.selectAllRows();
-	    	cursor_requeried.moveToFirst();
-	    	
-	    	//set cursor in adapter
-	    	scAdapter.changeCursor(cursor_requeried);
-	     }
+    		//earthquakeActivity.getLinksDeleted().add(link);    			    		    		    	
+	    }
+	
+	    //query DB to get new cursor
+		db.open();
+    	Cursor cursor_requeried = db.selectAllRows();
+    	cursor_requeried.moveToFirst();
+    	db.close();
 	    
+    	//set cursor in adapter
+    	scAdapter.changeCursor(cursor_requeried);
+    	
     	return true;
 	}	
 	

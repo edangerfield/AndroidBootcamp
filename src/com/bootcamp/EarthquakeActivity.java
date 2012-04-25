@@ -2,58 +2,71 @@ package com.bootcamp;
 
 import java.util.ArrayList;
 
+import android.app.ActionBar;
 import android.app.ListActivity;
 import android.os.Bundle;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 
 
 public class EarthquakeActivity extends ListActivity {
     
-	public ArrayList<String> getLinksDeleted() {
-		return linksDeleted;
-	}
-
-	public void setLinksDeleted(ArrayList<String> linksDeleted) {
-		this.linksDeleted = linksDeleted;
-	}
-
-	private ArrayList<String> linksDeleted = new ArrayList<String>();
+//	public ArrayList<String> getLinksDeleted() {
+//		return linksDeleted;
+//	}
+//
+//	public void setLinksDeleted(ArrayList<String> linksDeleted) {
+//		this.linksDeleted = linksDeleted;
+//	}
+//
+//	private ArrayList<String> linksDeleted = new ArrayList<String>();
 		
+	
 	/** Called when the activity is first created. */
     @Override
     public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        
-        //final boolean customTitleSupported = requestWindowFeature(Window.FEATURE_CUSTOM_TITLE);
-        //setContentView(R.layout.main);
-        
-        //set custom title
-        //if (customTitleSupported) {
-        //    getWindow().setFeatureInt(Window.FEATURE_CUSTOM_TITLE, R.layout.title);
-        //}
-                
-           
+        super.onCreate(savedInstanceState);                     
+                   
         //Create and start new thread
-        PopulateObjects p = new PopulateObjects();
-        p.init(this);
-        p.execute(new String[] { "temp" });
+        PopulateObjects p = new PopulateObjects(this);
+        p.execute(new String[] { "" });
     }
-        
+ 
+    
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.main_menu, menu);
+        return true;
+    }
+    
+    
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item){
+    	
+        //Create and start new thread
+        PopulateObjects p = new PopulateObjects(this);
+        p.execute(new String[] { "" });    	
+    	
+    	return true;
+    }
 }
 
 
-// Option 1
-//    Since cursor is bound to the DB, upon selection of remove item, obtain the link from the cursor,
-//      store it and delete it from the DB table.  Update initial fetch and refreshes, to pull in all records except those in this list.
+//////////////////////////////////////////////////////
+// To Do's
 //
-//			- pass simpleCursorAdapter in constructor of ActionmodeHelper
-//			- using simpleCursorAdapter in ActionmodeHelper.onActionItemClick, invoke a delete op on DB. Then
-//            create new cursor and set in simpleCursorAdapter (sCA.ChangeCursor(newCursor))
-//			- will need new DbAdapter to obtain cursor
-//					- delete functionality working, need to work on the requery and refreshing the listview
-
-
+// Major:
+//   - Navigation from WebView back to inital view 
+//          (crashes - illegalStateException - trying to requery an already closed cursor)
+//   - add color coding by quake severity
+//
+// Minor:    
+//   - Update ActionModelHelper to acquire adapter (remove it from constructor)
+//   - add field name to each TextView on initial view
+//
 //    action bar icons: http://developer.android.com/design/style/iconography.html
-
-// Option 2
-//    Do not use a cursor adapter.  Fetch from DB into array list, then populate ListView from arrayList.
-//    Upon selection of remove item, delete item from array list and refresh list view
+//      ref: http://developer.android.com/guide/topics/ui/actionbar.html
+//
+/////////////////////////////////////////////////////
