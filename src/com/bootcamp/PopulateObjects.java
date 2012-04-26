@@ -5,17 +5,14 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 
+import android.app.ProgressDialog;
 import android.content.Context;
-import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Color;
 import android.os.AsyncTask;
 import android.view.View;
-import android.widget.AdapterView;
-import android.widget.AdapterView.OnItemClickListener;
 import android.widget.SimpleCursorAdapter;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.bootcamp.action.ActionModeHelper;
 import com.bootcamp.data.XMLData;
@@ -30,17 +27,21 @@ import com.bootcamp.parser.XMLPullParser;
 public class PopulateObjects extends AsyncTask<String, Void, String> {
 	
 		//protected static final String rssURL = "http://earthquake.usgs.gov/earthquakes/shakemap/rss.xml"; 
-		protected static final String rssURL = "http://10.61.21.41:7000/rss.xml";
-		//protected static final String rssURL = "http://192.168.1.9:7000/rss.xml";
+		//protected static final String rssURL = "http://10.61.21.41:7000/rss.xml";
+		protected static final String rssURL = "http://192.168.1.2:7000/rss.xml";
 
         private EarthquakeActivity earthquakeActivity = null;
-    	
+        ProgressDialog dialog;
     
 	    public PopulateObjects(Context context) {
 	        earthquakeActivity = (EarthquakeActivity)context;
 	    }
 	
-	   	    	
+	    @Override
+	   	protected void onPreExecute() {
+	    	dialog = ProgressDialog.show(earthquakeActivity,"","Loading... Please wait.");
+	    }
+	   	
     	@Override
     	protected String doInBackground(String... placeHolder) {    	    
             PopulateDatabase();                        	    
@@ -50,6 +51,7 @@ public class PopulateObjects extends AsyncTask<String, Void, String> {
     	    	
     	@Override
     	protected void onPostExecute(String result) {
+    		dialog.dismiss();
      	    PopulateLayout();
     	}
     	
@@ -60,7 +62,7 @@ public class PopulateObjects extends AsyncTask<String, Void, String> {
         //Purpose: To populate the database table with data from URL
         //********************************    
         private void PopulateDatabase() {
-
+      	
            XMLData currentItem = null;
         	
            //Obtain data from RSS URL.  Parse into list of objects. 
@@ -83,6 +85,7 @@ public class PopulateObjects extends AsyncTask<String, Void, String> {
     	 	   
     	 	   db.close();
      	   }
+     	  
         }
         
         

@@ -10,18 +10,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 
 
-public class EarthquakeActivity extends ListActivity {
-    
-//	public ArrayList<String> getLinksDeleted() {
-//		return linksDeleted;
-//	}
-//
-//	public void setLinksDeleted(ArrayList<String> linksDeleted) {
-//		this.linksDeleted = linksDeleted;
-//	}
-//
-//	private ArrayList<String> linksDeleted = new ArrayList<String>();
-		
+public class EarthquakeActivity extends ListActivity {    
 	
 	/** Called when the activity is first created. */
     @Override
@@ -59,8 +48,8 @@ public class EarthquakeActivity extends ListActivity {
 //
 // Major:
 //   - Navigation from WebView back to inital view 
-//          (crashes - illegalStateException - trying to requery an already closed cursor)
-//   - add color coding by quake severity
+//          look into how to get rid of blank screen that is btw first and second activity
+//   
 //
 // Minor:    
 //   - Update ActionModelHelper to acquire adapter (remove it from constructor)

@@ -1,6 +1,7 @@
 package com.bootcamp;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.webkit.WebView;
 
@@ -16,6 +17,12 @@ public class WebActivity extends Activity{
 		setContentView(R.layout.myweblayout);
 		WebView myWebView = (WebView) findViewById(R.id.webview);
 		myWebView.loadUrl(link);
+	}
+	
+	@Override
+	public void onBackPressed() {
+	   Intent intent = new Intent(this, EarthquakeActivity.class);	
+	   this.startActivity(intent);	
 	}
 		
 }
